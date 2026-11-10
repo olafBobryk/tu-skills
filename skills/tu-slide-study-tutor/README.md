@@ -8,7 +8,7 @@ An agent skill that walks you through a course's lecture slides week by week, sp
 
 1. **Builds each unit around the next deadline.** It finds the next graded assignment, works back to the lectures and exercise sets it covers, and keeps the final exam as a second horizon.
 2. **Tiers topics by assessment.** Topics tested by assignments, rubrics or past exams (T1) get questions in the assessed format; exercise-set-only topics (T2) get lighter practice; slide-only topics (T3) get a short note marked "not assessed so far".
-3. **Pretests before teaching.** A few quick questions per topic, so it only explains what you missed.
+3. **Opens by exposure.** For lectures you have attended or studied, a quick closed-book pretest so it only explains what you missed. For lectures you have never seen, a short teach-through first, then questions you may answer with the slides open; the closed-book quiz comes at the end of each topic.
 4. **Grades against a real key.** The official solution when one exists; otherwise the model solves the question first and labels its key "model answer, not official".
 5. **Keeps what it makes.** Notes, a registry of question types and approaches, a question bank and a miss log go into the course's `study/` folder. Missed concepts come back as warm-up questions in later sessions.
 6. **Hands off for the exam.** About three weeks before the exam it suggests an exam-cram skill such as [universal-exam-cram-coach](https://github.com/ZeKaiNie/universal-examprep-skill), pointed at the same folder.

@@ -14,7 +14,7 @@ description: >-
   For last-weeks exam cramming it hands off to an exam-cram skill.
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # TU Slide Study Tutor
@@ -34,28 +34,33 @@ Read [question rules](references/question-rules.md) before writing any question 
 A unit is the work up to the next graded deadline, with the final exam as the second horizon.
 
 1. **Open the ledger.** Read only the header and status table of `study/ledger.md`. Create `study/` and its files on first use, and add one line for `study/` to the directory map in `COURSE.md` (organizational only; never progress).
-2. **Refresh the registry when needed.** If the newest snapshot date is later than the registry's `Built from` date, or the registry does not exist, scan the assessed sources (graded assignments and rubrics, past exams, closed assignments with published solutions, exercise sets, the syllabus's assessment section). Add new question types, source examples and tiers to `study/question-types.md`. Never delete or rewrite existing entries; mark superseded ones.
-3. **Pick the unit.** Find the next graded deadline from the snapshot's assignments. Work back to the lectures and exercise sets it covers using the course schedule, the assignment text, or its rubric; when the mapping is unclear, ask once and record it in the ledger. With no known deadline, follow lecture order.
-4. **Tier the unit's topics** with the rules in [question rules](references/question-rules.md): T1 assessed, T2 exercise sets only, T3 slides only. Tiers decide how questions are written, not the order of study.
-5. **Show a short route:** the deadline, the lectures and topics in teaching order with their tier, and any locked material. It is a map, not notes.
+2. **Check the AI policy.** On first use, look for an AI or LLM rule in the syllabus, course pages and `COURSE.md`. If the course restricts AI, quote it to the student and ask how they want to proceed before studying; record the rule and any clarification they report (for example from the lecturer) under `COURSE.md`'s agent rules.
+3. **Refresh the registry when needed.** If the newest snapshot date is later than the registry's `Built from` date, or the registry does not exist, scan the assessed sources (graded assignments and rubrics, past exams, closed assignments with published solutions, exercise sets, the syllabus's assessment section). Add new question types, source examples and tiers to `study/question-types.md`. Never delete or rewrite existing entries; mark superseded ones.
+4. **Pick the unit.** Find the next assessment deadline from the snapshot's assignments: graded homework, or a formative or pass/fail test when that is what the course has. Work back to the lectures and exercise sets it covers using the course schedule, the assignment text, or its rubric; when the mapping is unclear, ask once and record it in the ledger. With no known deadline, follow lecture order.
+5. **Ask exposure per lecture.** For each lecture in the unit without an exposure in the ledger, ask once: *never seen*, *attended or skimmed*, or *studied*. Record it in the status table and update it as the learner progresses. Exposure decides the topic loop's opening (see below).
+6. **Tier the unit's topics** with the rules in [question rules](references/question-rules.md): T1 assessed, T2 exercise sets only, T3 slides only. Tiers decide how questions are written, not the order of study.
+7. **Show a short route:** the deadline, the lectures and topics in teaching order with their tier and exposure, and any locked material. It is a map, not notes.
 
 ## Topic loop
 
 For each topic, in teaching order:
 
 1. **Warm-up.** Ask up to 3 re-questions from open misses in the ledger (rephrased, not repeated), oldest first. Skip when there are none.
-2. **Pretest.** Before teaching, ask 2–3 single-select questions through the harness's question tool (`AskUserQuestion` in Claude Code) plus 1 short written question, drawn from the registry types that fit the topic. T3 topics get at most one recognition check.
-3. **Teach the gaps.** Fully explain only what the pretest missed; confirm what the learner got right in one line. Reuse `study/notes/<lecture>.md` when it already covers the topic instead of explaining from scratch. Course language first, then plain language.
-4. **Quiz.** One round per [question rules](references/question-rules.md), written against the registry type and its rubric. Write each question's key to the question bank before asking. Do not reveal answers in the same message.
-5. **Review.** Mark each answer correct, partly correct or needs work; explain the gap; show the key with its provenance label. Do not ask follow-up questions; log misses instead.
-6. **Save.** Write or update the topic in the lecture's notes, add the questions and outcomes to the question bank, add misses to the ledger's miss log, and add any new question type or approach to the registry.
-7. **Wait.** Stop and wait for the learner's signal before the next topic.
+2. **Open by exposure.**
+   - *Attended, skimmed or studied:* **closed-book pretest.** Before teaching, ask 2–3 single-select questions through the harness's question tool (`AskUserQuestion` in Claude Code) plus 1 short written question, drawn from the registry types that fit the topic. Then **teach the gaps**: fully explain only what the pretest missed and confirm what the learner got right in one line.
+   - *Never seen:* **teach-through, then open-slides questions.** Give a compact walk-through of the topic with slide numbers, then ask 2–3 open-slides questions (find, apply, explain) that the learner may answer with the slides open. Explain what they got wrong. Never ask closed-book questions on material the learner has not seen.
+   - T3 topics get at most one recognition check either way.
+   Reuse `study/notes/<lecture>.md` when it already covers the topic instead of explaining from scratch. Course language first, then plain language.
+3. **Quiz (closed book).** One round per [question rules](references/question-rules.md), written against the registry type and its rubric. Write each question's key to the question bank before asking. Do not reveal answers in the same message.
+4. **Review.** Mark each answer correct, partly correct or needs work; explain the gap; show the key with its provenance label. Do not ask follow-up questions; log misses instead.
+5. **Save.** Write or update the topic in the lecture's notes, add the questions and outcomes to the question bank, add misses to the ledger's miss log, and add any new question type or approach to the registry.
+6. **Wait.** Stop and wait for the learner's signal before the next topic.
 
 Signals: `next`/`continue`, `again` (re-explain differently), `deeper`, `quiz me more`, `summarize`, `skip` (record it), `stop`. Follow clear intent phrased differently.
 
 ## Slides
 
-- Extract text first (a PDF text tool, or `pdftotext` when installed). Do not read every page as an image.
+- Extract text first (`pdftotext`, Python `pypdf`, or the agent's PDF reader, whichever is available). Do not read every page as an image.
 - Look at a slide image only when a figure carries the point (diagrams, ER models, worked tables). Show the full slide next to the explanation it supports, labelled with slide number and title.
 - Do not infer teaching order or future content from older public material.
 

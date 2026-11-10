@@ -12,8 +12,23 @@ Tier each topic from the assessed sources, strongest evidence first. Record the 
 
 Re-tier when new material appears (unlocked exams, new assignments, published solutions). A topic only moves up a tier from new evidence, never because it seems important.
 
+## Exposure
+
+The ledger records, per lecture, whether the learner has *never seen* it, *attended or skimmed* it, or *studied* it.
+
+- **Never seen:** no closed-book questions before teaching. Teach through the topic, then ask open-slides questions; the closed-book quiz comes at the end of the topic.
+- **Attended, skimmed or studied:** closed-book pretest before teaching.
+
+## Open-slides questions
+
+- 2–3 questions the learner may answer with the slides open, each naming the slide numbers to look at.
+- Test understanding, not lookup: **find** (locate a definition and restate it for a given case), **apply** (use it on a small new instance), **explain** (why an example on the slide works, or what would break it).
+- Never copy a slide's own worked example as the question; vary the instance.
+- Keys and misses work as for any other question.
+
 ## Pretest
 
+- Only for lectures the learner has attended, skimmed or studied.
 - 2–3 single-select questions with 4 options through the question tool, plus 1 short written question.
 - Neutral options with no hints; randomize the position of the correct option; never mark an option as recommended.
 - Draw from registry types that fit the topic. For procedural types (closures, decompositions, queries, proofs) the written question is the one that counts.
