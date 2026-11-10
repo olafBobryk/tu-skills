@@ -1,18 +1,19 @@
 {
   "name": "tu-skills",
-  "description": "Agent skills for TU/e and TU Delft students: academic writing with LaTeX and Overleaf, and course setup from Canvas or Brightspace.",
+  "description": "Agent skills for TU/e and TU Delft students: academic writing with LaTeX and Overleaf, course setup from Canvas or Brightspace, and an assessment-driven slide study tutor.",
   "owner": {
     "name": "Olaf Bobryk"
   },
   "plugins": [
     {
       "name": "tu-skills",
-      "description": "TU/e academic writing (LaTeX templates, Overleaf workflow) and course setup that downloads and organizes a Canvas (TU/e) or Brightspace (TU Delft, experimental) course.",
+      "description": "TU/e academic writing (LaTeX templates, Overleaf workflow), course setup that downloads and organizes a Canvas (TU/e) or Brightspace (TU Delft, experimental) course, and a slide study tutor that pretests, teaches the gaps and practises assessed question types.",
       "source": "./",
       "strict": false,
       "skills": [
         "./skills/tue-academic-writing",
-        "./skills/tu-course-setup"
+        "./skills/tu-course-setup",
+        "./skills/tu-slide-study-tutor"
       ],
       "category": "education",
       "homepage": "https://github.com/olafBobryk/tu-skills",
@@ -26,7 +27,9 @@
         "brightspace",
         "academic-writing",
         "latex",
-        "overleaf"
+        "overleaf",
+        "study",
+        "exam-prep"
       ]
     }
   ]

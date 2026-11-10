@@ -1,0 +1,7 @@
+interface:
+  display_name: "TU Slide Study Tutor"
+  short_description: "Study a course's slides week by week, driven by its assessments"
+  default_prompt: "Use $tu-slide-study-tutor to study this week's lectures for my next assignment."
+
+policy:
+  allow_implicit_invocation: true
