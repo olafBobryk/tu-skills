@@ -28,8 +28,8 @@ Navigational only: no explanations or copied content. Read only the header and s
 
 ## Status
 
-| Lecture | Topic | Tier | State | Last studied |
-| --- | --- | --- | --- | --- |
+| Lecture | Exposure | Topic | Tier | State | Last studied |
+| --- | --- | --- | --- | --- | --- |
 
 ## Miss log
 
@@ -37,7 +37,7 @@ Navigational only: no explanations or copied content. Read only the header and s
 | --- | --- | --- | --- | --- | --- |
 ```
 
-States: `todo`, `pretested`, `done`, `skipped`. Miss states: `open`, `resolved` (two correct sessions).
+Exposure: `never seen`, `attended/skimmed`, `studied`; asked at unit start, set to `studied` once all of a lecture's topics are done. States: `todo`, `pretested`, `done`, `skipped`, `locked`. Miss states: `open`, `resolved` (two correct sessions).
 
 ## question-types.md
 
