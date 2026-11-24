@@ -9,10 +9,11 @@ description: >-
   course structure with a COURSE.md index and sync record. Use when a student
   asks to set up, download, import, sync, or refresh a Canvas or Brightspace
   course, or when a course's COURSE.md shows its course context is stale or
-  incomplete.
+  incomplete. Also use when auditing missed coursework or syncing verified
+  assignment deadlines and their changes to Calendar or Tasks.
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # TU Course Setup
@@ -62,7 +63,9 @@ A course folder that exists without a sync section was organized by hand: read i
 
    Run it once without `--move` first: it checks that every expected file is present with the right size and prints what it would do. Rerun missing downloads until it reports none. With `--move` it copies each file into place, verifies the size, and deletes only that prefixed download. It never overwrites an existing file; it reports conflicts instead. It writes the dated snapshot, creates `COURSE.md` and the Canvas `SOURCE.md` when they are missing, and updates the `## Canvas sync` section in `COURSE.md` (see [Canvas sync](references/course-layout.md#canvas-sync)). Moving files out of the download folder may need the student's permission; name the `<CODE>__*` files when asking.
 
-7. **Report.** Close any browser tab you opened. Tell the student the course folder, the files added and skipped, anything not downloadable (videos, external tools, locked items listed in `modules.md`), and any conflicts. Suggest starting future agent sessions from the course folder (for example a Claude or Codex project connected to it) so its `COURSE.md` is read first.
+7. **Track assignments.** Read [assignment tracking](references/assignment-tracking.md). Review the exact due and availability times, current submission status, published grading rules, and deadline changes. When the student authorizes Calendar or Tasks writes, reconcile by source identity and read back every write; never blindly append reminders. Keep personal records outside this public skill repository.
+
+8. **Report.** Close any browser tab you opened. Tell the student the course folder, the files added and skipped, anything not downloadable (videos, external tools, locked items listed in `modules.md`), and any conflicts. Suggest starting future agent sessions from the course folder (for example a Claude or Codex project connected to it) so its `COURSE.md` is read first.
 
 ## Rules
 
@@ -71,3 +74,4 @@ A course folder that exists without a sync section was organized by hand: read i
 - Never record signed or expiring download URLs, tokens, or cookies on disk or in chat.
 - Leave everything in the download folder that this run did not create.
 - Do not infer the teaching order or future content from older public material; the snapshot records what the platform showed on its capture date.
+- Keep grades, submissions, private course captures, sync ledgers, and personal course plans out of public repositories and test fixtures. Use only invented fixtures in this repository.

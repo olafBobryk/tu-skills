@@ -21,6 +21,8 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
+from assignment_tracking import effective_due, local_time, write_tracking
+
 SYNC_START, SYNC_END = "<!-- course-sync:start -->", "<!-- course-sync:end -->"
 OLD_SYNC = ("<!-- canvas-sync:start -->", "<!-- canvas-sync:end -->")  # blocks written before 1.1
 PLATFORMS = {"canvas": "Canvas", "brightspace": "Brightspace"}
@@ -397,6 +399,10 @@ class Organizer:
         parser.close()
         return parser.text()
 
+    def assignment_time(self, value):
+        zone = self.mapping.get("timezone") or self.manifest["course"].get("time_zone") or "Europe/Amsterdam"
+        return local_time(value, zone) or "—"
+
     def snapshot_dir(self):
         day = self.manifest["collected_at"][:10]
         base = self.materials / self.snapshots / day
@@ -437,7 +443,7 @@ class Organizer:
             name = unique_name("assignments", slug(a["name"])) + ".md"
             assignment_links[a["id"]] = f"assignments/{name}"
             lines = [f"# {a['name']}", "", f"{self.label}: {a.get('html_url') or ''}  ",
-                     f"Due: {fmt_date(a.get('due_at'))} · Available from: {fmt_date(a.get('unlock_at'))} · Until: {fmt_date(a.get('lock_at'))}  ",
+                     f"Due: {self.assignment_time(effective_due(a))} · Available from: {self.assignment_time(a.get('unlock_at'))} · Until: {self.assignment_time(a.get('lock_at'))}  ",
                      f"Points: {a.get('points_possible') if a.get('points_possible') is not None else '—'} · Submission: {', '.join(a.get('submission_types') or []) or '—'}", ""]
             body = self.md(a.get("description"), snap / "assignments")
             lines.append(body if body.strip() else f"_No description on {self.label}._\n")
@@ -508,6 +514,9 @@ class Organizer:
         raw = json.dumps(self.manifest, indent=1, ensure_ascii=False)
         self.write(snap / f"{self.platform}-manifest.json", VERIFIER.sub(r"\1", raw))
 
+        write_tracking(m, self.materials / self.snapshots / "assignment-index.json", snap,
+                       self.mapping.get("timezone"))
+
         r = self.report
         lines = [f"# {self.label} snapshot {snap.name} — {title}", "",
                  f"Captured from {m['course']['url']} at {m['collected_at']} by tue-course-setup.", "",
@@ -515,7 +524,7 @@ class Organizer:
                  f"- [Modules](modules.md): {len(m.get('modules', []))}",
                  f"- [Syllabus](syllabus.md)",
                  f"- Pages: {len(m.get('pages', []))}",
-                 f"- Assignments: {len(m.get('assignments', []))}",
+                 f"- Assignments: {len(m.get('assignments', []))}; [changes](assignment-changes.json)",
                  f"- Announcements: {len(m.get('announcements', []))}",
                  f"- Files filed this sync: {len(r['filed']) + len(r['updated']) + len(r['conflicts'])}; already present: {len(r['already']) + len(r['adopted'])}; skipped by mapping: {len(r['skipped'])}",
                  f"- Not downloadable (locked, video, or external tool): {self.not_downloadable}", ""]
@@ -568,6 +577,8 @@ class Organizer:
         skipped = len(m.get("files", [])) - len(kept)
         lines = [SYNC_START, "## Course sync", "",
                  f"- Last synced: {m['collected_at'][:10]} with `tu-course-setup` from {self.label} ([snapshot]({md_link_path(rel(self.snap, self.course))}/README.md))"]
+        if m.get("assignments_complete") is not True:
+            lines.append("- Assignment coverage INCOMPLETE or unverified: retain previously known deadlines; inspect collection errors and assignment-coverage.json before claiming no outstanding work.")
         if run:
             lines.append(f"- Course run: {run}")
         lines += [f"- Captured: {len(m.get('modules', []))} modules, {len(kept)} files ({fmt_size(total)}{f'; {skipped} skipped or locked' if skipped else ''}), "

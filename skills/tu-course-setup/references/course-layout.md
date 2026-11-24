@@ -17,6 +17,8 @@ The default structure for one course. Follow an existing library's own conventio
 │   ├── other/                     anything that does not fit the above
 │   └── <platform>-snapshots/        canvas-snapshots or brightspace-snapshots
 │       ├── files.json             file id → filed path, size, platform update time
+│       ├── assignment-index.json   private stable assignment records and exact dates
+│       ├── assignment-coverage.json capture time, completeness and collection errors
 │       └── <YYYY-MM-DD>/          one folder per sync, never edited afterwards
 │           ├── README.md          capture summary, counts, files filed, errors
 │           ├── modules.md         every module item, with local or platform links
@@ -25,6 +27,7 @@ The default structure for one course. Follow an existing library's own conventio
 │           ├── assignments/<assignment>.md   description, dates, points, rubric
 │           ├── announcements/<date>-<title>.md
 │           └── canvas-manifest.json          raw capture without download URLs
+│           └── assignment-changes.json       new/changed/unseen assignment identities
 └── external-sources/
     └── tue-canvas-course/SOURCE.md
 ```
@@ -83,3 +86,5 @@ Every sync replaces the block between `<!-- course-sync:start -->` and `<!-- cou
 - A file already in place from an earlier hand-made or other capture (same folder and name, and the same size, or identical bytes when a fresh download exists) is adopted into `files.json` instead of being copied again, so only new and changed files need downloading. A same-named untracked file with different contents is treated as an older version: the new one is filed as `<name> (updated YYYY-MM-DD).<ext>`.
 - A name that already belongs to another file from the platform gets ` (F<id>)` before the extension.
 - Each sync writes a new snapshot folder; a second sync on the same day gets a `-2` suffix.
+
+Assignment records include private submission status when available. Keep captures and the external Calendar/Tasks reconciliation ledger outside public repositories. See [assignment tracking](assignment-tracking.md). Exact due and availability times are retained in the course timezone (Europe/Amsterdam by default); date-only sources stay date-only.

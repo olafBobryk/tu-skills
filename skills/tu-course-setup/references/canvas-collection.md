@@ -11,8 +11,14 @@ Run these scripts in a `canvas.tue.nl` tab through the browser tool's JavaScript
 
 ```js
 (async () => {
-  const r = await fetch('/api/v1/courses?per_page=100&enrollment_state=active&include[]=term', {headers: {Accept: 'application/json'}});
-  const list = JSON.parse((await r.text()).replace(/^while\(1\);/, ''));
+  let url = '/api/v1/courses?per_page=100&enrollment_state=active&include[]=term';
+  const list = [];
+  while (url) {
+    const r = await fetch(url, {headers: {Accept: 'application/json'}});
+    if (!r.ok) throw new Error('Course lookup failed: ' + r.status);
+    list.push(...JSON.parse((await r.text()).replace(/^while\(1\);/, '')));
+    url = /<([^>]+)>;\s*rel="next"/.exec(r.headers.get('Link') || '')?.[1] || null;
+  }
   return list.map(c => ({id: c.id, name: c.name, code: c.course_code.split(/\s+/)[0], term: c.term && c.term.name}));
 })()
 ```
@@ -79,13 +85,29 @@ window._tue = {status: 'collecting', errors: []};
   for (const m of modules) for (const it of m.items) if (it.type === 'File') await addFile(it.content_id, m.mi, 'Module: ' + m.name);
 
   T.status = 'assignments';
-  const assignments = (await soft('assignments', () => all(`/api/v1/courses/${C}/assignments?per_page=100`), [])).map(a => ({
+  // Keep null distinct from an empty, successfully collected list.
+  const assignmentRows = await soft('assignments', () => all(`/api/v1/courses/${C}/assignments?per_page=100&include[]=submission&include[]=all_dates&override_assignment_dates=true`), null);
+  const submissionFields = ['workflow_state', 'submitted_at', 'graded_at', 'attempt',
+    'missing', 'late', 'excused', 'score', 'grade', 'cached_due_date', 'late_policy_status'];
+  const assignments = (assignmentRows || []).map(a => ({
     id: a.id, name: a.name, due_at: a.due_at, unlock_at: a.unlock_at, lock_at: a.lock_at,
+    updated_at: a.updated_at, assignment_group_id: a.assignment_group_id,
+    grading_type: a.grading_type, omit_from_final_grade: a.omit_from_final_grade,
+    published: a.published, locked_for_user: a.locked_for_user,
+    quiz_id: a.quiz_id, allowed_attempts: a.allowed_attempts,
+    all_dates: (a.all_dates || []).map(d => ({id: d.id, base: d.base, title: d.title,
+      due_at: d.due_at, unlock_at: d.unlock_at, lock_at: d.lock_at})),
+    // Current user's status only. Never collect answer bodies, attachments, comments,
+    // user ids, other students' submissions, or override membership lists.
+    submission: a.submission ? Object.fromEntries(submissionFields
+      .filter(k => Object.hasOwn(a.submission, k)).map(k => [k, a.submission[k]])) : null,
     points_possible: a.points_possible, submission_types: a.submission_types, html_url: a.html_url,
     description: a.description || '',
     rubric: (a.rubric || []).map(c => ({description: c.description, long_description: c.long_description, points: c.points,
       ratings: (c.ratings || []).map(r => ({description: r.description, long_description: r.long_description, points: r.points}))})),
   }));
+
+  const assignmentGroups = await soft('assignment groups', () => all(`/api/v1/courses/${C}/assignment_groups?per_page=100`), null);
 
   T.status = 'announcements';
   const announcements = (await soft('announcements', () => all(`/api/v1/announcements?context_codes[]=course_${C}&per_page=100&start_date=2000-01-01&end_date=2100-01-01`), [])).map(a => ({
@@ -129,15 +151,19 @@ window._tue = {status: 'collecting', errors: []};
   T.code = CODE;
   T.files = [...files.values()].filter(Boolean);
   T.manifest = {
-    schema: 1, collected_at: new Date().toISOString(), code: CODE,
+    schema: 2, assignments_complete: assignmentRows !== null, collected_at: new Date().toISOString(), code: CODE,
     course: {id: course.id, name: course.name, course_code: course.course_code, url: `${location.origin}/courses/${C}`,
+      time_zone: course.time_zone, apply_assignment_group_weights: course.apply_assignment_group_weights,
       default_view: course.default_view, start_at: course.start_at, end_at: course.end_at,
       term: course.term && {name: course.term.name, start_at: course.term.start_at, end_at: course.term.end_at}},
     syllabus: course.syllabus_body || '',
     modules: modules.map(m => ({mi: m.mi, id: m.id, name: m.name, unlock_at: m.unlock_at,
       items: m.items.map(it => ({type: it.type, title: it.title, content_id: it.content_id, page_url: it.page_url, html_url: it.html_url, external_url: it.external_url}))})),
     files: T.files.map(({url, ...rest}) => rest),
-    pages, assignments, announcements, errors: T.errors,
+    pages, assignments,
+    assignment_groups: assignmentGroups && assignmentGroups.map(g => ({id: g.id, name: g.name,
+      group_weight: g.group_weight, rules: g.rules})),
+    announcements, errors: T.errors,
   };
   T.status = 'collected';
 })(COURSE_ID, 'CODE').catch(e => { window._tue.status = 'failed: ' + e.message; });
@@ -201,3 +227,9 @@ Set `window._tueSkip = new Set([...ids])` to the ids the mapping skips (on a ref
 ```
 
 Poll `window._tue.dl`. `done` counts files the browser was asked to save, not files on disk; the organizer's dry run is the real check. After the first file, check the download folder; if nothing else arrives, ask the student to allow multiple downloads from `canvas.tue.nl`, then retry the missing ids.
+
+## Assignment verification
+
+Follow [assignment tracking](assignment-tracking.md) after collecting. The submission summary is private student data. A null score is unknown, never zero. Read the live syllabus and relevant announcements before calculating a grade or asserting that late work is accepted. Never start or reopen a quiz to inspect its status; some courses grade the final attempt.
+
+API references: [Assignments](https://developerdocs.instructure.com/services/canvas/resources/assignments), [Assignment groups](https://developerdocs.instructure.com/services/canvas/resources/assignment_groups). API scripts require a browser tool that explicitly permits authenticated page requests; otherwise inspect the UI and record the missing collection capability.
